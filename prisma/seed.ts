@@ -69,6 +69,14 @@ async function main() {
       },
     ],
   });
+
+  await prisma.user.create({
+    data: {
+      email: 'admin@gmail.com',
+      password: 'admin',
+    },
+  });
+
 }
 
 main()
