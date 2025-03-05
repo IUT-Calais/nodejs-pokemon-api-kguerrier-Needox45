@@ -14,4 +14,4 @@ pokemoncardRouter.post('/', verifyJWT, createPokemon);
 pokemoncardRouter.patch('/:pokemonCardId', verifyJWT, editPokemon);
 
 // Route pour supprimer un pokémon
-pokemoncardRouter.delete('/:pokemonCardId', verifyJWT, deletePokemon);
+pokemoncardRouter.delete('/:pokemonCardId', verifyJWT, deletePokemon); 

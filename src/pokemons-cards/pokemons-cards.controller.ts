@@ -1,7 +1,6 @@
 import{ Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../client';
 
-const prisma = new PrismaClient();
  
 
 export const getPokemons = async (_req: Request, res: Response) => {
@@ -21,25 +20,42 @@ export const getPokemonById = async (req: Request, res: Response) => {
     }
 };
 
-export const createPokemon = async (req: Request, res: Response) => {
-    const { typeName, ...newPokemon } = req.body;
+export const createPokemon = async (req: Request, res: Response): Promise<void> => {
+    const { name, pokedexId, typeName, lifePoints, size, weight, imageUrl } = req.body;
+
+    // Vérifiez si typeName est défini
+    if (!typeName) {
+        res.status(400).send('Le champ typeName est requis');
+        return;
+    }
+
     // Trouver le typeId correspondant au typeName
     const type = await prisma.type.findUnique({
         where: { name: typeName },
     });
+
     if (!type) {
         res.status(404).send(`Type ${typeName} non trouvé`);
+        return;
     }
-    else {
+
     const createdPokemon = await prisma.pokemonCard.create({
         data: {
-            ...newPokemon,
+            name: name,
+            pokedexId: pokedexId,
             typeId: type.id,
+            lifePoints: lifePoints,
+            size: size,
+            weight: weight,
+            imageUrl: imageUrl,
         },
     });
+
     res.status(201).json(createdPokemon);
-    }
 };
+
+
+
 
 
 export const editPokemon = async (req: Request, res: Response) => {
