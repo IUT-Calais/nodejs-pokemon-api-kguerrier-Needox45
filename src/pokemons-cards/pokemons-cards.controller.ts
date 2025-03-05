@@ -2,7 +2,7 @@ import{ Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
+ 
 
 export const getPokemons = async (_req: Request, res: Response) => {
     const pokemons = await prisma.pokemonCard.findMany();
