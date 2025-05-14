@@ -15,7 +15,7 @@ export const createUser = async (req: Request, res: Response) => {
             });
 
             if (existingUser) {
-                res.status(400).json({ error: 'Email déjà utilisé' });
+                res.status(400).json({ error: 'Email dejà utilise' });
             } else {
                 const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -26,17 +26,17 @@ export const createUser = async (req: Request, res: Response) => {
                     },
                 });
 
-                res.status(201).json(createdUser);
+                res.status(200).json({ success : createdUser});
             }
         } catch (error) {
-            res.status(400).json({ error: 'Erreur lors de la création de l\'utilisateur', detail: error });
+            res.status(400).json({ error: 'Erreur lors de la creation de l\'utilisateur', detail: error });
         }
     }
 };
 
 export const getUsers = async (_req: Request, res: Response) => {
     const users = await prisma.user.findMany();
-    res.status(200).send(users);
+    res.status(200).send({ success :users});
 };
 
 export const getUserById = async (req: Request, res: Response) => {
@@ -45,35 +45,66 @@ export const getUserById = async (req: Request, res: Response) => {
         where: { id: parseInt(UserId) },
     });
     if (user) {
-        res.status(200).send(user);
+        res.status(200).send({ success: user });
     } else {
-        res.status(404).send(`User avec l'ID ${UserId} non trouvé`);
+        res.status(404).json({ error: `User avec ID ${UserId} non trouve` });
     }
 };
 
 export const editUser = async (req: Request, res: Response) => {
     const { UserId } = req.params;
     const updatedProperties = req.body;
+
     try {
+        // Verifiez si l'utilisateur existe
+        const existingUser = await prisma.user.findUnique({
+            where: { id: parseInt(UserId) },
+        });
+
+        if (!existingUser) {
+            res.status(404).json({ error: `Utilisateur avec ID ${UserId} non trouve` });
+            return;
+        }
+
+        // Si l'utilisateur existe, mettez-le à jour
         if (updatedProperties.password) {
             updatedProperties.password = await bcrypt.hash(updatedProperties.password, 10);
         }
+
         const updatedUser = await prisma.user.update({
             where: { id: parseInt(UserId) },
             data: updatedProperties,
         });
-        res.status(200).send(updatedUser);
+
+        res.status(200).send({ success: updatedUser });
     } catch (error) {
-        res.status(400).json({ error: 'Erreur lors de la mise à jour de l\'utilisateur', detail: error });
+        res.status(400).json({ error: `Erreur lors de la mise à jour du user ${UserId}` });
     }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
     const { UserId } = req.params;
-    await prisma.user.delete({
-        where: { id: parseInt(UserId) },
-    });
-    res.status(200).send(`Utilisateur avec l'ID ${UserId} supprimé`);
+
+    try {
+        // Verifiez si l'utilisateur existe
+        const existingUser = await prisma.user.findUnique({
+            where: { id: parseInt(UserId) },
+        });
+
+        if (!existingUser) {
+            res.status(404).json({ error: `Utilisateur avec ID ${UserId} non trouve` });
+            return;
+        }
+
+        // Supprimez l'utilisateur
+        await prisma.user.delete({
+            where: { id: parseInt(UserId) },
+        });
+
+        res.status(200).send({ success: `Utilisateur avec ID ${UserId} supprime` });
+    } catch (error) {
+        res.status(400).json({ error: `Erreur lors de la suppression de l'utilisateur ${UserId}`, detail: error });
+    }
 };
 
 
@@ -91,7 +122,7 @@ export const loginUser = async (req: Request, res: Response) => {
             });
 
             if (!user) {
-                res.status(404).json({ error: 'Utilisateur non trouvé' });
+                res.status(404).json({ error: 'Utilisateur non trouve' });
             } else {
                 const isPasswordValid = await bcrypt.compare(password, user.password);
 

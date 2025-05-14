@@ -4,7 +4,7 @@ import { createUser, deleteUser, editUser, loginUser, getUserById, getUsers } fr
 export const userRouter = Router();
 
 // Route pour enregistrer un nouveau user
-userRouter.post('/', createUser);
+userRouter.post('/', createUser); 
 
 // Route pour obtenir la liste des utilisateurs
 userRouter.get('/', getUsers);
