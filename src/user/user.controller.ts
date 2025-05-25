@@ -109,38 +109,33 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 
 
-
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     if (!email || !password) {
         res.status(400).json({ error: 'Email et mot de passe sont requis' });
-    } else {
-        try {
-            const user = await prisma.user.findUnique({
-                where: { email },
-            });
-
-            if (!user) {
-                res.status(404).json({ error: 'Utilisateur non trouve' });
-            } else {
-                const isPasswordValid = await bcrypt.compare(password, user.password);
-
-                if (!isPasswordValid) {
-                    res.status(400).json({ error: 'Mot de passe incorrect' });
-                } else {
-                    const token = jwt.sign(
-                        { id: user.id, email: user.email },
-                        process.env.JWT_SECRET as jwt.Secret, // Secret
-                        //{ expiresIn: process.env.JWT_EXPIRATION } // Expiration
-                        { expiresIn: '1d' } // Expiration
-                    );
-
-                    res.status(201).json({ token });
-                }
-            }
-        } catch (error) {
-            res.status(400).json({ error: 'Erreur lors de la connexion' });
+        return;
+    }
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            res.status(404).json({ error: 'Utilisateur non trouve' });
+            return;
         }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            res.status(400).json({ error: 'Mot de passe incorrect' });
+            return;
+        }
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET as jwt.Secret,
+            { expiresIn: '1d' }
+        );
+        res.status(201).json({ token });
+        return;
+    } catch (error) {
+        res.status(400).json({ error: 'Erreur lors de la connexion' });
+        return;
     }
 };

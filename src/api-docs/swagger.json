@@ -1,0 +1,226 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NodeJS Pokemon API",
+    "version": "1.0.0",
+    "description": "Documentation de l'API Pokemon"
+  },
+  "servers": [
+    { "url": "http://localhost:3000" }
+  ],
+  "paths": {
+    "/pokemons-cards": {
+      "get": {
+        "summary": "Liste toutes les cartes Pokemon",
+        "responses": {
+          "200": {
+            "description": "Liste des cartes Pokemon"
+          }
+        }
+      },
+      "post": {
+        "summary": "Creer une nouvelle carte Pokemon",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "pokedexId": { "type": "integer" },
+                  "typeName": { "type": "string" },
+                  "lifePoints": { "type": "integer" },
+                  "size": { "type": "number" },
+                  "weight": { "type": "number" },
+                  "imageUrl": { "type": "string" }
+                },
+                "required": ["name", "pokedexId", "typeName", "lifePoints", "size", "weight", "imageUrl"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Carte Pokemon creee" },
+          "400": { "description": "Erreur de validation" }
+        }
+      }
+    },
+    "/pokemons-cards/{pokemonCardId}": {
+      "get": {
+        "summary": "Recupère une carte Pokemon par ID",
+        "parameters": [
+          {
+            "name": "pokemonCardId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Carte Pokemon trouvee" },
+          "404": { "description": "Carte non trouvee" }
+        }
+      },
+      "patch": {
+        "summary": "Modifier une carte Pokemon",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "pokemonCardId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Carte modifiee" },
+          "404": { "description": "Carte non trouvee" }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer une carte Pokemon",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "pokemonCardId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Carte supprimee" },
+          "404": { "description": "Carte non trouvee" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Liste tous les utilisateurs",
+        "responses": {
+          "200": { "description": "Liste des utilisateurs" }
+        }
+      },
+      "post": {
+        "summary": "Creer un nouvel utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Utilisateur cree" },
+          "400": { "description": "Erreur de validation" }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "summary": "Connexion utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Connexion reussie, token retourne" },
+          "400": { "description": "Erreur de connexion" }
+        }
+      }
+    },
+    "/users/{UserId}": {
+      "get": {
+        "summary": "Recupère un utilisateur par ID",
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Utilisateur trouve" },
+          "404": { "description": "Utilisateur non trouve" }
+        }
+      },
+      "patch": {
+        "summary": "Modifier un utilisateur",
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Utilisateur modifie" },
+          "404": { "description": "Utilisateur non trouve" }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer un utilisateur",
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Utilisateur supprime" },
+          "404": { "description": "Utilisateur non trouve" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

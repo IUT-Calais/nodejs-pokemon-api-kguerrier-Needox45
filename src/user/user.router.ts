@@ -3,6 +3,9 @@ import { createUser, deleteUser, editUser, loginUser, getUserById, getUsers } fr
 
 export const userRouter = Router();
 
+// Route pour se connecter
+userRouter.post('/login', loginUser);
+
 // Route pour enregistrer un nouveau user
 userRouter.post('/', createUser); 
 
@@ -15,6 +18,3 @@ userRouter.patch('/:UserId', editUser);
 
 // Route pour supprimer un user
 userRouter.delete('/:UserId', deleteUser);
-
-// Route pour se connecter
-userRouter.post('/login', loginUser);

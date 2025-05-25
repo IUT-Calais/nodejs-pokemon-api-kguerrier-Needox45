@@ -2,7 +2,8 @@ import request from 'supertest';
 import { app } from '../src';
 import { prismaMock } from './jest.setup';
 import { error } from 'console';
-
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -180,20 +181,58 @@ describe('User API', () => {
 
 
 
-/*
+describe('POST /login', () => {
+  it('should login a user and return a token', async () => {
+    const user = {
+      id: 1,
+      email: "userTest1@gmail.com",
+      password: await bcrypt.hash("12345678910", 10)
+    };
+    const token = 'mockedToken';
 
-    describe('POST /login', () => {
-      it('should login a user and return a token', async () => {
-        const user = {};
-        const token = 'mockedToken';
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+    jest.spyOn(require('jsonwebtoken'), 'sign').mockReturnValue(token);
 
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({
-          token,
-          message: 'Connexion reussie',
-        });
-      });
-    });
+    const response = await request(app)
+      .post('/login')
+      .send({ email: "userTest1@gmail.com", password: "12345678910" });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ token });
   });
-*/
+
+  it('should return 404 if user is not found', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
+
+    const response = await request(app)
+      .post('/login')
+      .send({ email: "notfound@gmail.com", password: "12345678910" });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Utilisateur non trouve' });
+  });
+
+  it('should return 400 if password is incorrect', async () => {
+    const user = {
+      id: 1,
+      email: "userTest1@gmail.com",
+      password: await bcrypt.hash("12345678910", 10)
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
+
+    const response = await request(app)
+      .post('/login')
+      .send({ email: "userTest1@gmail.com", password: "wrongpassword" });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Mot de passe incorrect' });
+  });
+});
+
+
+
+
 });
